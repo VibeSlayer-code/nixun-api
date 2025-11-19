@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from flask_socketio import SocketIO, emit, join_room
 import os
 from flask_cors import CORS
+import eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -113,5 +115,6 @@ if __name__ == "__main__":
     for rule in app.url_map.iter_rules():
         print(f"  {rule} → {rule.endpoint}")
     print()
+
 
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
