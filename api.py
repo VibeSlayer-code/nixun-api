@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from flask_socketio import SocketIO, emit, join_room
 import os
 from flask_cors import CORS
-
+import google.generativeai as genai
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -14,6 +14,9 @@ client = MongoClient("mongodb+srv://vibeslayerdb:Apz21260%40%21@exun-goat.0bv0t4
 db = client.get_database('exun-goat')
 users = db["users"]
 reviews = db["reviews"]
+
+genai.configure(api_key="AIzaSyCYdvCJTFFqOHHrGSDdd-DzSZOjFJbg_ss")
+
 
 
 @app.post("/add_user")
@@ -101,6 +104,13 @@ def ice(data):
     room = data["room"]
     emit("ice", {"candidate": data["candidate"]}, room=room, include_self=False)
 
+@app.post("/gemini_message")
+def gemini_message():
+    data = request.json
+    model = genai.GenerativeModel("gemini-2.5-flash")
+    response = model.generate_content(data["message"])
+    return jsonify({"reply": response.text}), 200
+
 
 
 if __name__ == "__main__":
@@ -117,4 +127,5 @@ if __name__ == "__main__":
 
 
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+
 
